@@ -225,6 +225,7 @@ void live()
       delay(duration);
       noTone(BUZZER_PIN);  
    }
+ 
 }
 /******************RECORD(): IMPLEMENT **********************************
  * INSTRUCTIONS:
@@ -269,7 +270,7 @@ void play()
     tone(BUZZER_PIN, notes[i], duration);
     // veRY IMPORTANT need this to stop repeating same note forever 
     delay(duration);
-
+    break;
   }
 }
 /******************LOOPMODE(): IMPLEMENT *********************************
@@ -288,6 +289,7 @@ void loopMode()
     for (int i=countNotes-1; i>=0; i--) {
     tone(BUZZER_PIN, notes[i], duration);
     delay(duration);
+    break;
   }
 }
 
