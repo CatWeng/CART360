@@ -1,4 +1,4 @@
-// Motor things
+// Elio's Motor things
 #define MOTOR_EN_1_2  10
 #define MOTOR_EN_3_4  11
 #define MOTOR_IN1     9
@@ -20,15 +20,15 @@ int speeed;
 int direcshen;
 int stepping;
 
-int stepperVal = 11;
-int counter = 0;
+int stepperVal = 11; // Number of steps needed for one revolution
+int counter = 0; // Revolution counter
 
 //Variables for proximity sensor
 const int pingPin = 7; // Trigger Pin of Ultrasonic Sensor
 const int echoPin = 6; // Echo Pin of Ultrasonic Sensor
 long duration, cm;
 
-
+// Elio's stepper code, drives the motor in the necessary direction
 void stepp(void) {
 
   digitalWrite(MOTOR_EN_1_2, HIGH);
@@ -119,12 +119,14 @@ void setup() {
 
 }
 
+//Run the code aye
 void loop() {
   proximity();
   stepControl();
   Serial.println(counter);
 }
 
+//Moves the motor clockwise 
 void forwardStep() {
   direcshen = forward;   // choose forward or backward
   speeed = slow;         // choose slow, normal or fast
@@ -133,7 +135,7 @@ void forwardStep() {
   {stepp();}
   counter++;
 }
-
+//Moves the motor counter-clockwise 
 void backwardStep(){
   direcshen=backward;     // choose forward or backward
   speeed = slow;           // choose slow, normal or fast
@@ -143,6 +145,7 @@ void backwardStep(){
   counter--;
 }
 
+// Runs the proximity sensor and prints the value as a distance in CM
 void proximity() {
   pinMode(pingPin, OUTPUT);
   digitalWrite(pingPin, LOW);
@@ -159,10 +162,14 @@ void proximity() {
   //delay(50);
 }
 
+// Converts sensor value to CM 
 long microsecondsToCentimeters(long microseconds) {
    return microseconds / 29 / 2;
 }
 
+// Function to run the stepper
+// For every 50cm between 0 and 200cm the sensor detects, the motor will move an according amount of revolutions to open and shut
+ 
 void stepControl() {
   if (cm > 200 && counter > 0) {
     backwardStep();
@@ -188,7 +195,6 @@ void stepControl() {
     if (counter >9) {
       backwardStep();
     }
-
   } else if (cm <= 50 && cm >= 0 ) {
     if (counter <12) {
       forwardStep();
