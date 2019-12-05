@@ -1,3 +1,11 @@
+//  Final 360 Artifact
+//  The creature's core will light up a different color depending on what it detects around the user
+//  White neutral pulse if nothing is detected at all. Green if the user is being approached from the front.
+//  If the user is approached from the back the reaction will differ in intensity.
+//  The first state of detection is a yellow twinkle in the white glow, like a sparked interest.
+//
+
+
 // Include neopixel library
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -9,7 +17,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(numLights, pixelPin, NEO_GRB + NEO_K
 int fadeSpeed = 1;
 int pulseDelay = 40;
 
-int buzzerPin = 1;
+//int buzzerPin = 1; Removed buzzer
 
 //Variables for proximity sensors
 const int pingPin = 6; // Trigger Pin of Ultrasonic Sensor
@@ -24,25 +32,25 @@ const int pingPin2 = 12; // Trigger Pin of Ultrasonic Sensor
 const int echoPin2 = 13; // Echo Pin of Ultrasonic Sensor
 long duration2, cm2;
 
-//Variables for PIR sensors
+/ Input pins for PIR sensors
 int pirPin = A1;
-int pirPin1 = A3;
+// int pirPin1 = A3; Not being used
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(pirPin, INPUT);
-  pinMode(pirPin1, INPUT);
+  // pinMode(pirPin1, INPUT); Not being used
+  // Initialize Neopixels
   strip.begin();
   strip.show();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
   proximity();
   detection();
 }
 
+// Function to read values from the proximity sensors and print out the resulting number as a value in centimeters for ease of use and interpretation.
 void proximity() {
   pinMode(pingPin, OUTPUT);
   digitalWrite(pingPin, LOW);
@@ -70,19 +78,20 @@ void proximity() {
   Serial.print("cm1  ");
   //Serial.println();
 
-  pinMode(pingPin2, OUTPUT);
-  digitalWrite(pingPin2, LOW);
-  delayMicroseconds(2);
-  digitalWrite(pingPin2, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(pingPin2, LOW);
-  pinMode(echoPin2, INPUT);
-  duration2 = pulseIn(echoPin2, HIGH);
-  cm2 = microsecondsToCentimeters2(duration2);
-  Serial.print(cm2);
-  Serial.print("cm2  ");
-  Serial.println();
-  delay(200);
+  // Last unused sensor
+  //  pinMode(pingPin2, OUTPUT);
+  //  digitalWrite(pingPin2, LOW);
+  //  delayMicroseconds(2);
+  //  digitalWrite(pingPin2, HIGH);
+  //  delayMicroseconds(10);
+  //  digitalWrite(pingPin2, LOW);
+  //  pinMode(echoPin2, INPUT);
+  //  duration2 = pulseIn(echoPin2, HIGH);
+  //  cm2 = microsecondsToCentimeters2(duration2);
+  //  Serial.print(cm2);
+  //  Serial.print("cm2  ");
+  //  Serial.println();
+  //  delay(200);
 }
 
 long microsecondsToCentimeters(long microseconds) {
@@ -93,11 +102,11 @@ long microsecondsToCentimeters1(long microseconds) {
   return microseconds / 29 / 2;
 }
 
-long microsecondsToCentimeters2(long microseconds) {
-  return microseconds / 29 / 2;
-}
+//long microsecondsToCentimeters2(long microseconds) {
+//  return microseconds / 29 / 2;
+//}
 
-// Neopixel light animation effects adapted from https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
+// Neopixel light animation effects (snow, fade and runner) adapted from https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
 void showStrip() {
 #ifdef ADAFRUIT_NEOPIXEL_H
   // NeoPixel
@@ -167,17 +176,19 @@ void runner(byte red, byte green, byte blue, int WaveDelay) {
     delay(WaveDelay);
   }
 }
-//End of code from https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
+// End of code from https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
 
+// Detecting states of "danger". In increments of 50cm, as others approch the wearer, change state.
+// Excepting the faraway movement, friendly movement and neutral states.
+// Checks if motion has been triggered, and if so, then how far the triggering mass is.
 void detection() {
+  // Motion sensing values here
   int  val = digitalRead(pirPin);  // read input value
-  int  val2 = digitalRead(pirPin1);
+  //int  val2 = digitalRead(pirPin1);
   Serial.print(val);
   Serial.print("front");
-
-  Serial.print(val2);
-  Serial.print("back");
-
+  //Serial.print(val2);
+  //Serial.print("back");
   Serial.println("");
   if (val == HIGH && cm1 > 200) {
     // Faraway movement detected - white with yellow sparks
@@ -194,12 +205,13 @@ void detection() {
     runner(0xCC, 0x3d, 0x00, 20);  // red
     Serial.println("alternating");
   } else if (val == HIGH && cm1 <= 100 && cm1 > 50 ) {
-    // Urgent red spin
+    // Red spin
     fadeSpeed = 1;
     pulseDelay = 0;
     runner(0xA6, 0x00, 0x00, 20);
     Serial.println("spin");
   } else if (val == HIGH && cm1 <= 50 && cm1 > 0 ) {
+    // Urgent red pulse
     fadeSpeed = 1;
     pulseDelay = 0;
     fade(0xA6, 0x00, 0x00);
